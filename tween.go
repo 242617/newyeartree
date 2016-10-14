@@ -8,22 +8,20 @@ import (
 func TweenTo(o *Pixel, to Pixel, d time.Duration) {
 	log.Println("stop tween")
 
-	b := time.Now().UnixNano()
-
+	start := time.Now().UnixNano()
 	from := o.Clone()
-	log.Println("to.Blue", to.Blue)
 
 	for {
-		ratio := float64((time.Now().UnixNano() - b)) / float64(d)
+		ratio := float64((time.Now().UnixNano() - start)) / float64(d)
 
 		if ratio >= 1 {
+			o.X, o.Y = to.X, to.Y
+			o.Red, o.Green, o.Blue = to.Red, to.Green, to.Blue
 			return
 		}
 
 		o.X = int(int32(from.X) + int32(round(ratio*float64(to.X-from.X))))
-		o.X = int(int32(from.Y) + int32(round(ratio*float64(to.Y-from.Y))))
-		log.Println(o.X, o.Y)
-
+		o.Y = int(int32(from.Y) + int32(round(ratio*float64(to.Y-from.Y))))
 		o.Color.Red = uint32(int32(from.Red) + int32(ratio*float64(int32(to.Red)-int32(from.Red))))
 		o.Color.Green = uint32(int32(from.Green) + int32(ratio*float64(int32(to.Green)-int32(from.Green))))
 		o.Color.Blue = uint32(int32(from.Blue) + int32(ratio*float64(int32(to.Blue)-int32(from.Blue))))

@@ -1,4 +1,3 @@
-
 Example
 
 	package main
@@ -8,20 +7,20 @@ Example
 		"log"
 		"time"
 
-		"github.com/stylerucom/newyeartree"
+		. "github.com/stylerucom/newyeartree"
 	)
 
 	func main() {
 		log.SetFlags(log.Lshortfile)
 
-		colors := map[string]newyeartree.Color{
-			"black":  newyeartree.Color{0, 0, 0},
-			"white":  newyeartree.Color{255, 255, 255},
-			"red":    newyeartree.Color{255, 0, 0},
-			"green":  newyeartree.Color{0, 255, 0},
-			"orange": newyeartree.Color{255, 69, 0},
-			"yellow": newyeartree.Color{255, 255, 0},
-			"cyan":   newyeartree.Color{0, 255, 255},
+		colors := map[string]Color{
+			"black":  Color{0, 0, 0},
+			"white":  Color{255, 255, 255},
+			"red":    Color{255, 0, 0},
+			"green":  Color{0, 255, 0},
+			"orange": Color{255, 69, 0},
+			"yellow": Color{255, 255, 0},
+			"cyan":   Color{0, 255, 255},
 		}
 
 		port := flag.String("port", "COM4", "Path to serial port")
@@ -30,18 +29,34 @@ Example
 		brightness := flag.Uint64("brightness", 128, "Tree brightness")
 		framerate := flag.Int("framerate", 60, "Animation framerate")
 
-		t := newyeartree.Tree{
+		s := NewStrip(Options{
 			Framerate: *framerate,
 			Height:    *height,
 			Port:      *port,
 			Width:     *width,
+		})
+		s.Start()
+		s.SetBrightness(uint32(*brightness))
+
+		mtx := [][]Color{
+			[]Color{colors["red"], colors["orange"]},
+			[]Color{colors["green"], colors["cyan"]},
 		}
-		t.Start()
-		t.SetBrightness(uint32(*brightness))
 
-		red := newyeartree.Pixel{X: 0, Y: 0, Color: colors["red"]}
-		green := newyeartree.Pixel{X: 1, Y: 1, Color: colors["green"]}
-		t.AddPixel(&red)
+		for y := 0; y < *height; y++ {
+			for x := 0; x < *width; x++ {
+				p := Pixel{X: x, Y: y}
+				s.AddPixel(&p)
+				go func(p *Pixel, c Color) {
+					for {
+						TweenTo(p, Pixel{X: p.X, Y: p.Y, Color: c}, 2*time.Second)
+						TweenTo(p, Pixel{X: p.X, Y: p.Y, Color: colors["black"]}, 2*time.Second)
+					}
+				}(&p, mtx[y][x])
+			}
+		}
 
-		newyeartree.TweenTo(&red, green, 10*time.Second)
+		for {
+		}
+
 	}
