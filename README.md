@@ -26,8 +26,10 @@ Example
 		port := flag.String("port", "COM4", "Path to serial port")
 		width := flag.Int("width", 2, "LED width")
 		height := flag.Int("height", 2, "LED height")
-		brightness := flag.Uint64("brightness", 128, "Tree brightness")
+		brightness := flag.Uint64("brightness", 128, "Brightness")
 		framerate := flag.Int("framerate", 60, "Animation framerate")
+		flag.Parse()
+		log.Printf("Options: {port: %s, dimensions: [%d:%d], brightness: %d, framerate: %d}", *port, *width, *height, *brightness, *framerate)
 
 		s := NewStrip(Options{
 			Framerate: *framerate,
@@ -35,28 +37,24 @@ Example
 			Port:      *port,
 			Width:     *width,
 		})
+		s.Brightness = uint32(*brightness)
 		s.Start()
-		s.SetBrightness(uint32(*brightness))
-
-		mtx := [][]Color{
-			[]Color{colors["red"], colors["orange"]},
-			[]Color{colors["green"], colors["cyan"]},
-		}
 
 		for y := 0; y < *height; y++ {
 			for x := 0; x < *width; x++ {
-				p := Pixel{X: x, Y: y}
+				p := Pixel{X: x, Y: y, Color: colors["red"]}
 				s.AddPixel(&p)
-				go func(p *Pixel, c Color) {
+				go func() {
 					for {
-						TweenTo(p, Pixel{X: p.X, Y: p.Y, Color: c}, 2*time.Second)
-						TweenTo(p, Pixel{X: p.X, Y: p.Y, Color: colors["black"]}, 2*time.Second)
+						p.Brightness = 0
+						time.Sleep(200 * time.Millisecond)
+						p.Brightness = 255
+						time.Sleep(200 * time.Millisecond)
 					}
-				}(&p, mtx[y][x])
+				}()
 			}
 		}
 
-		for {
-		}
+		select {}
 
 	}

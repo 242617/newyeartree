@@ -17,7 +17,8 @@ func NewStrip(o Options) (s Strip) {
 }
 
 type Strip struct {
-	brightness uint32
+	Brightness uint32
+
 	delay      time.Duration
 	framerate  int
 	height     int
@@ -30,6 +31,7 @@ type Strip struct {
 
 func (s *Strip) Start() {
 
+	s.Brightness = 255
 	s.delay = time.Duration(1000000000 / s.framerate)
 
 	log.Println("Connecting...")
@@ -63,10 +65,6 @@ func (s *Strip) RemovePixel(o *Pixel) {
 	delete(s.pixels, o)
 }
 
-func (s *Strip) SetBrightness(b uint32) {
-	s.brightness = b
-}
-
 func (s *Strip) run() {
 	data := make([]Color, s.width*s.height)
 
@@ -80,9 +78,9 @@ func (s *Strip) run() {
 	}
 
 	for k, v := range data {
-		v.Red = v.Red * s.brightness >> 8
-		v.Green = v.Green * s.brightness >> 8
-		v.Blue = v.Blue * s.brightness >> 8
+		v.Red = v.Red * s.Brightness >> 8
+		v.Green = v.Green * s.Brightness >> 8
+		v.Blue = v.Blue * s.Brightness >> 8
 		s.writeData([]byte{byte(k), byte(v.Red), byte(v.Green), byte(v.Blue)})
 	}
 }
