@@ -1,13 +1,8 @@
 package newyeartree
 
-import (
-	"log"
-	"time"
-)
+import "time"
 
 func TweenTo(o *Pixel, to Pixel, d time.Duration) {
-	log.Println("stop tween")
-
 	start := time.Now().UnixNano()
 	from := o.Clone()
 
@@ -26,7 +21,7 @@ func TweenTo(o *Pixel, to Pixel, d time.Duration) {
 		o.Color.Green = uint32(int32(from.Green) + int32(ratio*float64(int32(to.Green)-int32(from.Green))))
 		o.Color.Blue = uint32(int32(from.Blue) + int32(ratio*float64(int32(to.Blue)-int32(from.Blue))))
 
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 	}
 
 }
