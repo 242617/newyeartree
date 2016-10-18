@@ -1,4 +1,4 @@
-Example
+Example. Blink with all 4 LEDs.
 
 	package main
 
@@ -37,23 +37,23 @@ Example
 			Port:      *port,
 			Width:     *width,
 		})
-		s.Brightness = uint32(*brightness)
 		s.Start()
 
 		for y := 0; y < *height; y++ {
 			for x := 0; x < *width; x++ {
-				p := Pixel{X: x, Y: y, Color: colors["red"]}
+				p := NewPixel(x, y, colors["red"])
 				s.AddPixel(&p)
-				go func() {
-					for {
-						p.Brightness = 0
-						time.Sleep(200 * time.Millisecond)
-						p.Brightness = 255
-						time.Sleep(200 * time.Millisecond)
-					}
-				}()
 			}
 		}
+
+		go func() {
+			for {
+				s.Brightness = 0
+				time.Sleep(200 * time.Millisecond)
+				s.Brightness = uint32(*brightness)
+				time.Sleep(200 * time.Millisecond)
+			}
+		}()
 
 		select {}
 
